@@ -7,8 +7,10 @@ import sendResponse from "../../../shared/sendResponse";
 interface JobQuery {
   page?: string;
   limit?: string;
+  search?: string;
+  category?: string;
+  location?: string;
 }
-
 // Route param interface
 interface JobIdParams {
   id: string;
@@ -31,7 +33,9 @@ const getJobs = catchAsync(async (req: Request<{}, {}, {}, JobQuery>, res: Respo
   const page = req.query.page ? parseInt(req.query.page, 10) : 1;
   const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
 
-  const { data, total } = await JobService.getJobs(page, limit);
+  const { search, category, location } = req.query;
+
+  const { data, total } = await JobService.getJobs(page, limit, { search, category, location });
 
   sendResponse(res, {
     statusCode: 200,
