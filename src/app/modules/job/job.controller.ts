@@ -19,7 +19,22 @@ interface JobIdParams {
 // Controller as an object
 const createJob = catchAsync(async (req: Request, res: Response) => {
   //console.log("data------->",req.body)
-  const job = await JobService.createJob(req.body);
+     const user = req.user;
+
+  if (!user) {
+    return sendResponse(res, {
+      statusCode: 401,
+      success: false,
+      message: "Unauthorized: User not found in token",
+    });
+  }
+
+  // Merge user_id from token into request body
+  const jobData = {
+    ...req.body,
+    user_id: user.userId,
+  };
+  const job = await JobService.createJob(jobData);
   //console.log("Created job:", job);
   sendResponse(res, {
     statusCode: 201,

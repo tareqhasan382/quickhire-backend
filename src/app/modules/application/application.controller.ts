@@ -15,7 +15,22 @@ interface ApplicationIdParams {
 }
 
 const createApplication = catchAsync(async (req: Request, res: Response) => {
-  const application = await ApplicationService.createApplication(req.body);
+   const user = req.user;
+
+  if (!user) {
+    return sendResponse(res, {
+      statusCode: 401,
+      success: false,
+      message: "Unauthorized: User not found in token",
+    });
+  }
+
+  // Merge user_id from token into request body
+  const applicationData = {
+    ...req.body,
+    user_id: user.userId,
+  };
+  const application = await ApplicationService.createApplication(applicationData);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -27,7 +42,7 @@ const createApplication = catchAsync(async (req: Request, res: Response) => {
 const getApplications = catchAsync(async (req: Request<{}, {}, {}, ApplicationQuery>, res: Response) => {
   const page = req.query.page ? parseInt(req.query.page, 10) : 1;
   const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
-
+  console.log("limit------->",limit)
   const { data, total } = await ApplicationService.getApplications(page, limit);
 
   sendResponse(res, {

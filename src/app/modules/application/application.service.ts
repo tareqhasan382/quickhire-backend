@@ -19,6 +19,7 @@ class ApplicationService {
     return { data, total };
   }
 
+
   // Get single application by ID
   async getApplicationById(id: string) {
     return ApplicationModel.findById(id).lean();

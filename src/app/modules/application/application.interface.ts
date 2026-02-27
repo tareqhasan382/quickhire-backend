@@ -3,6 +3,7 @@ import { Schema } from "mongoose";
 export interface IApplication {
   _id?: string;             
   job_id: Schema.Types.ObjectId;           
+  user_id: Schema.Types.ObjectId;          
   name: string;
   email: string;
   resume_link: string;      

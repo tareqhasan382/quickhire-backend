@@ -9,6 +9,11 @@ const applicationSchema = new Schema<IApplication>(
       ref: "Job",
       required: true,
     },
+     user_id: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     name: {
       type: String,
       required: true,

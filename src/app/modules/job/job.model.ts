@@ -1,9 +1,14 @@
-import { Schema, model,Query } from "mongoose";
+import { Schema, model, Query } from "mongoose";
 import { IJob, IJobModel } from "./job.interface";
 import { JOB_CATEGORIES, JOB_LOCATIONS } from "./job.constant";
 
 const jobSchema = new Schema<IJob>(
   {
+    user_id: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
     title: {
       type: String,
       required: true,
