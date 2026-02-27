@@ -1,6 +1,7 @@
 import { Server } from "http";
 import app from "./app";
 import config from "./config";
+import mongoose from "mongoose";
 
 
 
@@ -12,7 +13,8 @@ process.on("uncaughtException", (error) => {
 let server: Server;
 async function main() {
   try {
-    // here database connect
+    await mongoose.connect(config.database_url as string);
+    console.log(`Database is connected successfully`);
 
     server = app.listen(config.port, () => {
       console.log(`Server is running on http://localhost:${config.port}`);

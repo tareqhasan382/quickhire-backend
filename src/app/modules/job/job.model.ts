@@ -51,7 +51,7 @@ const jobSchema = new Schema<IJob>(
   }
 );
 
-// Search optimization
+// 🔎 Search optimization
 jobSchema.index({ title: "text", company: "text", description: "text" });
 
 // Default sort (latest jobs first)
