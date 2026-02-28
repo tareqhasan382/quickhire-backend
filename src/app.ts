@@ -5,7 +5,7 @@ import router from "./app/routes";
 import notFound from "./app/middlewares/notFound";
 
 const corsOptions = {
-  origin: ["http://localhost:5173", "http://localhost:3000"],
+  origin: ["http://localhost:5173", "http://localhost:3000","https://quickhire-frontend-pfxp.vercel.app"],
   credentials: true,
   optionSuccessStatus: 200,
 };
