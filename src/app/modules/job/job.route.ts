@@ -10,7 +10,7 @@ const router = Router();
 router.post("/",authVerify(ENUM_ROLE.ADMIN), validateRequest(JobValidation.createJobZodSchema), JobController.createJob);
 router.get("/", JobController.getJobs);
 router.get("/:id", JobController.getJobById);
-router.patch("/:id", JobController.updateJob);
-router.delete("/:id", JobController.deleteJob);
+router.patch("/:id",authVerify(ENUM_ROLE.ADMIN), JobController.updateJob);
+router.delete("/:id",authVerify(ENUM_ROLE.ADMIN), JobController.deleteJob);
 
 export default router;
