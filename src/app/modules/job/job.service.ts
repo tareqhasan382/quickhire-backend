@@ -11,35 +11,36 @@ class JobService {
   }
 
   // Get all jobs with optional pagination
-  async getJobs(
-    page = 1,
-    limit = 10,
-    filters: { search?: string; category?: string; location?: string } = {}
-  ): Promise<{ data: IJob[]; total: number }> {
-    const skip = (page - 1) * limit;
+async getJobs(
+  page = 1,
+  limit = 10,
+  filters: { search?: string; title?: string; location?: string } = {}
+): Promise<{ data: IJob[]; total: number }> {
+  const skip = (page - 1) * limit;
+ //console.log("filters-------->",filters)
+  const query: any = {};
 
-    const query: any = {};
-
-    // Full text search on title, company, description
-    if (filters.search) {
-      query.$text = { $search: filters.search };
-    }
-
-    if (filters.category) {
-      query.category = filters.category;
-    }
-
-    if (filters.location) {
-      query["location.type"] = filters.location;
-    }
-
-    const [data, total] = await Promise.all([
-      JobModel.find(query).skip(skip).limit(limit).lean(),
-      JobModel.countDocuments(query),
-    ]);
-
-    return { data, total };
+  if (filters.search) {
+    query.$text = { $search: filters.search };
   }
+
+  // Fix 1: Use case-insensitive regex instead of exact match
+  // Fix 2: .trim() guards against whitespace-only strings
+  if (filters.title && filters.title.trim()) {
+    query.title = { $regex: filters.title.trim(), $options: "i" };
+  }
+
+  if (filters.location && filters.location.trim()) {
+    query["location.type"] = filters.location;
+  }
+
+  const [data, total] = await Promise.all([
+    JobModel.find(query).skip(skip).limit(limit).lean(),
+    JobModel.countDocuments(query),
+  ]);
+
+  return { data, total };
+}
 
   // Get single job by ID
   async getJobById(id: string) {

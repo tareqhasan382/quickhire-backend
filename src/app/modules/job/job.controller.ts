@@ -8,7 +8,7 @@ interface JobQuery {
   page?: string;
   limit?: string;
   search?: string;
-  category?: string;
+  title?: string;
   location?: string;
 }
 // Route param interface
@@ -48,9 +48,9 @@ const getJobs = catchAsync(async (req: Request<{}, {}, {}, JobQuery>, res: Respo
   const page = req.query.page ? parseInt(req.query.page, 10) : 1;
   const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
 
-  const { search, category, location } = req.query;
+  const { search, title, location } = req.query;
 
-  const { data, total } = await JobService.getJobs(page, limit, { search, category, location });
+  const { data, total } = await JobService.getJobs(page, limit, { search, title, location });
 
   sendResponse(res, {
     statusCode: 200,
