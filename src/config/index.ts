@@ -14,4 +14,22 @@ export default {
     expires_in: process.env.JWT_EXPIRES_IN,
     refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN,
   },
+
+  demo: {
+    admin: {
+      name: "Sam Patel",
+      email: process.env.DEMO_ADMIN_EMAIL,
+      password: process.env.DEMO_ADMIN_PASSWORD,
+    },
+    recruiter: {
+      name: "Jordan Rivera",
+      email: process.env.DEMO_RECRUITER_EMAIL,
+      password: process.env.DEMO_RECRUITER_PASSWORD,
+    },
+    candidate: {
+      name: "Alex Morgan",
+      email: process.env.DEMO_CANDIDATE_EMAIL,
+      password: process.env.DEMO_CANDIDATE_PASSWORD,
+    },
+  },
 };

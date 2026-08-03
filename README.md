@@ -1,228 +1,57 @@
-# (QuickHire) Simple Job Board Application
+# QuickHire Backend
 
-A full-stack **Job Portal** application where admins can create and manage job posts, and users can browse jobs and apply with their details and resume.
+REST API for the QuickHire job portal — authentication, jobs, companies, applications, and user profiles, with role-based access (`admin`, `recruiter`, `candidate`).
 
-This project demonstrates **role-based access**, **dashboard management**, and **modern React + Redux Toolkit Query** architecture.
+## Tech Stack
 
----
+- Node.js + Express 5
+- TypeScript
+- MongoDB + Mongoose
+- JWT auth (access + refresh tokens), bcrypt password hashing
+- Zod + express-validator for validation
 
-## ✨ Features
+## Getting Started
 
-### 👤 User
-
-* View all available jobs
-* View job details
-* Apply to jobs with:
-
-    * Name
-    * Email
-    * Resume link
-    * Cover note
-
-### 🛠 Admin Dashboard
-
-* Create new job posts
-* Delete jobs with confirmation popup
-* View job listings in a table
-* See how many applications each job has received
-* Enum-based job categories & location types
-* Protected dashboard (Admin only)
-
----
-
-## 🧱 Tech Stack
-
-### Frontend
-
-* **React + TypeScript**
-* **Redux Toolkit Query (RTK Query)**
-* **React Router v6**
-* **Tailwind CSS**
-* **react-hot-toast**
-
-### Backend
-
-* **Node.js**
-* **Express.js**
-* **MongoDB + Mongoose**
-* **Zod (validation)**
-* **JWT Authentication**
-
----
-
-
-
-## 🏷 Enums Used
-
-### Job Categories
-
-```ts
-Frontend
-Backend
-Fullstack
-DevOps
-Mobile
-Data Science
-Machine Learning
-AI Engineer
-Cloud Engineer
-Cyber Security
-QA / Testing
-UI / UX
-Product Manager
-Game Developer
-Blockchain
-```
-
-### Job Location Types
-
-```ts
-Remote
-Onsite
-Hybrid
-```
-
----
-
-## ⚙️ Environment Variables
-
-### Frontend (`.env`)
-
-```env
-VITE_API_BASE_URL=http://localhost:5000/api/v1
-```
-
-> Used in RTK Query `baseApi` for API calls.
-
----
-
-### Backend (`.env`)
-
-```env
-PORT=5000
-DATABASE_URL=mongodb://localhost:27017/job-portal
-JWT_SECRET=your_jwt_secret
-JWT_EXPIRES_IN=7d
-```
-
----
-
-## 🚀 Run Project Locally
-
-### 1️⃣ Clone the repository
+Prerequisites: Node.js and a running MongoDB instance.
 
 ```bash
-git clone https://github.com/tareqhasan382/quickhire-backend.git
-cd quickhire-backend
-```
-
----
-
-### 2️⃣ Run Backend
-
-```bash
-cd quickhire-backend
 npm install
-npm run dev
+cp .env.example .env   # fill in DATABASE_URL, JWT_SECRET, demo accounts, etc.
+npm run seed           # seed demo users, companies, jobs, applications
+npm run dev            # http://localhost:5000
 ```
 
-Backend will run on:
+Scripts:
 
-```
-http://localhost:5000
-```
+- `npm run dev` — run with ts-node-dev (auto-reload)
+- `npm run build` — compile to `dist/`
+- `npm start` — run compiled output
+- `npm run seed` — seed database
+- `npm run seed:fresh` — drop and re-seed
 
----
+## Environment Variables
 
-### 3️⃣ Run Frontend
+See `.env.example`:
 
-```bash
-git clone https://github.com/tareqhasan382/quickhire-frontend.git
-cd quickhire-frontend
+| Variable                    | Description                                  |
+| --------------------------- | -------------------------------------------- |
+| `PORT`                      | Server port (default `5000`)                 |
+| `DATABASE_URL`              | MongoDB connection string                    |
+| `JWT_SECRET` / `JWT_EXPIRES_IN` | Access token secret & lifetime (`1d`)    |
+| `JWT_REFRESH_SECRET` / `JWT_REFRESH_EXPIRES_IN` | Refresh token secret & lifetime (`7d`) |
+| `BCRYPT_SALT_ROUNDS`        | bcrypt rounds (default `12`)                 |
+| `DEMO_ADMIN_*` / `DEMO_RECRUITER_*` / `DEMO_CANDIDATE_*` | Demo accounts created by `npm run seed` |
 
-npm install
-npm run dev
-```
+## API
 
-Frontend will run on:
+All routes are mounted under `/api` (e.g. `/api/auth/login`, `/api/jobs`). Protected routes require `Authorization: Bearer <token>`; role checks are enforced per route.
 
-```
-http://localhost:5173
-```
+## Demo Accounts
 
----
+Created by `npm run seed` from the `DEMO_*` variables:
 
-## 🔐 Authentication & Authorization
-
-```
-admin 
- {
-  "email": "admin@example.com",
-  "password": "12345678"
-}
-
-user 
- {
-  "email": "user@example.com",
-  "password": "12345678"
-}
-```
-* JWT based authentication
-* `ProtectedRoute` ensures:
-
-    * Only authenticated users can access dashboard
-    * Admin-only access enforced on backend
-* Role-based access (`admin`, `user`)
-
----
-
-## 📌 API Endpoints (Sample)
-
-### Jobs
-
-```
-GET    /api/v1/job
-GET    /api/v1/job/:id
-POST   /api/v1/job        (admin)
-DELETE /api/v1/job/:id    (admin)
-```
-
-### Applications
-
-```
-POST /api/v1/applications
-GET  /api/v1/applications
-```
-
----
-
-## 🧪 Error Handling
-
-* Form validation before submission
-* Toast notifications for:
-
-    * Success
-    * Failure
-* Safe API error handling using `.unwrap()`
-
----
-
-## 📈 Why This Project Matters
-
-This project demonstrates:
-
-* Scalable frontend architecture
-* Clean RTK Query usage
-* Real SaaS dashboard patterns
-* Production-ready form handling
-* Enum-safe data modeling
-* Professional UI/UX decisions
-
----
-
-## 👨‍💻 Author
-
-**Tareq Hasan**
-
----
-
+| Role      | Email                    | Password      |
+| --------- | ------------------------ | ------------- |
+| Admin     | `admin@quickhire.app`    | `password123` |
+| Recruiter | `recruiter@quickhire.app`| `password123` |
+| Candidate | `candidate@quickhire.app`| `password123` |

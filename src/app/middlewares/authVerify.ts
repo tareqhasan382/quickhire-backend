@@ -4,29 +4,29 @@ import config from "../../config";
 
 export const authVerify =
   (...requiredRoles: string[]) =>
-  async (req: Request, res: Response, next: NextFunction) => {
+  (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.headers.authorization;
-      // console.log("token:", req.headers);
-      // console.log("token:", token);
-       if (!token) {
-        return res
-          .status(401)
-          .json({ success: false, message: "You Are Not Authorized" });
+      const authorization = req.headers.authorization;
+
+      // Expect "Bearer <token>"
+      if (!authorization || !authorization.startsWith("Bearer ")) {
+        throw new Error("Unauthorized");
       }
 
-      //2 verify token
-      let vefifiedUser = null;
-      vefifiedUser = jwt.verify(
-        token,
-        config.jwt.secret as Secret
-      ) as JwtPayload;
-      req.user = vefifiedUser; // role , userId
-      const { role }: any = vefifiedUser;
-      // role authorise
+      const token = authorization.split(" ")[1];
+
+      let verifiedUser: JwtPayload;
+      try {
+        verifiedUser = jwt.verify(token, config.jwt.secret as Secret) as JwtPayload;
+      } catch {
+        throw new Error("Invalid or expired token");
+      }
+
+      req.user = verifiedUser; // { userId, email, role }
+
+      const { role } = verifiedUser;
       if (requiredRoles.length && !requiredRoles.includes(role)) {
-        return res.status(403).json("Forbidden");
-        //  throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden')
+        throw new Error("Forbidden");
       }
 
       next();

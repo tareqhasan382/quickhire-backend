@@ -13,8 +13,11 @@ const validateRequest =
       });
       return next();
     } catch (error: any) {
-      res.status(500).json({ status: false, message: error.issues });
-      //next(error);
+      res.status(400).json({
+        status: false,
+        message: "Validation failed",
+        issues: error.issues,
+      });
     }
   };
 

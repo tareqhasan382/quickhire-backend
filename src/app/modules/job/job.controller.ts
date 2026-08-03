@@ -3,23 +3,25 @@ import JobService from "./job.service";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 
-// Query params for pagination
+// Query params for pagination + filters
 interface JobQuery {
   page?: string;
   limit?: string;
   search?: string;
   title?: string;
   location?: string;
-}
-// Route param interface
-interface JobIdParams {
-  id: string;
+  locationType?: string;
+  category?: string;
+  employmentType?: string;
+  experienceLevel?: string;
+  minSalary?: string;
+  status?: string;
+  sort?: string;
+  company?: string;
 }
 
-// Controller as an object
 const createJob = catchAsync(async (req: Request, res: Response) => {
-  //console.log("data------->",req.body)
-     const user = req.user;
+  const user = req.user;
 
   if (!user) {
     return sendResponse(res, {
@@ -35,7 +37,6 @@ const createJob = catchAsync(async (req: Request, res: Response) => {
     user_id: user.userId,
   };
   const job = await JobService.createJob(jobData);
-  //console.log("Created job:", job);
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -48,15 +49,55 @@ const getJobs = catchAsync(async (req: Request<{}, {}, {}, JobQuery>, res: Respo
   const page = req.query.page ? parseInt(req.query.page, 10) : 1;
   const limit = req.query.limit ? parseInt(req.query.limit, 10) : 10;
 
-  const { search, title, location } = req.query;
-
-  const { data, total } = await JobService.getJobs(page, limit, { search, title, location });
+  const { data, total } = await JobService.getJobs(page, limit, {
+    search: req.query.search,
+    title: req.query.title,
+    location: req.query.location,
+    locationType: req.query.locationType,
+    category: req.query.category,
+    employmentType: req.query.employmentType,
+    experienceLevel: req.query.experienceLevel,
+    minSalary: req.query.minSalary,
+    status: req.query.status,
+    sort: req.query.sort,
+    company: req.query.company,
+  });
 
   sendResponse(res, {
     statusCode: 200,
     success: true,
     message: "Jobs fetched successfully",
     meta: { page, limit, total },
+    data,
+  });
+});
+
+const getFeaturedJobs = catchAsync(async (req: Request, res: Response) => {
+  const data = await JobService.getFeaturedJobs();
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Featured jobs fetched successfully",
+    data,
+  });
+});
+
+const getMyJobs = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+
+  if (!user) {
+    return sendResponse(res, {
+      statusCode: 401,
+      success: false,
+      message: "Unauthorized: User not found in token",
+    });
+  }
+
+  const data = await JobService.getMyJobs(user.userId);
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "My jobs fetched successfully",
     data,
   });
 });
@@ -73,6 +114,13 @@ const getJobById = catchAsync(async (req: Request, res: Response) => {
   }
 
   const job = await JobService.getJobById(id);
+  if (!job) {
+    return sendResponse(res, {
+      statusCode: 404,
+      success: false,
+      message: "Job not found",
+    });
+  }
 
   sendResponse(res, {
     statusCode: 200,
@@ -84,6 +132,7 @@ const getJobById = catchAsync(async (req: Request, res: Response) => {
 
 const updateJob = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
+  const user = req.user;
 
   if (!id || Array.isArray(id)) {
     return sendResponse(res, {
@@ -93,7 +142,31 @@ const updateJob = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
+  if (!user) {
+    return sendResponse(res, {
+      statusCode: 401,
+      success: false,
+      message: "Unauthorized: User not found in token",
+    });
+  }
+
+  const existing = await JobService.getOwnedJob(id, user.userId, user.role);
+  if (!existing) {
+    return sendResponse(res, {
+      statusCode: 404,
+      success: false,
+      message: "Job not found",
+    });
+  }
+
   const job = await JobService.updateJob(id, req.body);
+  if (!job) {
+    return sendResponse(res, {
+      statusCode: 404,
+      success: false,
+      message: "Job not found",
+    });
+  }
 
   sendResponse(res, {
     statusCode: 200,
@@ -105,6 +178,7 @@ const updateJob = catchAsync(async (req: Request, res: Response) => {
 
 const deleteJob = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
+  const user = req.user;
 
   if (!id || Array.isArray(id)) {
     return sendResponse(res, {
@@ -114,7 +188,31 @@ const deleteJob = catchAsync(async (req: Request, res: Response) => {
     });
   }
 
+  if (!user) {
+    return sendResponse(res, {
+      statusCode: 401,
+      success: false,
+      message: "Unauthorized: User not found in token",
+    });
+  }
+
+  const existing = await JobService.getOwnedJob(id, user.userId, user.role);
+  if (!existing) {
+    return sendResponse(res, {
+      statusCode: 404,
+      success: false,
+      message: "Job not found",
+    });
+  }
+
   const job = await JobService.deleteJob(id);
+  if (!job) {
+    return sendResponse(res, {
+      statusCode: 404,
+      success: false,
+      message: "Job not found",
+    });
+  }
 
   sendResponse(res, {
     statusCode: 200,
@@ -127,6 +225,8 @@ const deleteJob = catchAsync(async (req: Request, res: Response) => {
 export const JobController = {
   createJob,
   getJobs,
+  getMyJobs,
+  getFeaturedJobs,
   getJobById,
   updateJob,
   deleteJob,
