@@ -6,7 +6,7 @@ import 'dotenv/config';
 
 //uncaught Exception handle
 process.on("uncaughtException", (error) => {
-  // console.log(error);
+  // console.log(error); 
   process.exit(1);
 });
 let server: Server;
